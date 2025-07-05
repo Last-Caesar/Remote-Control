@@ -23,12 +23,13 @@ char rsStr[32];
 
 int app()
 { 
-	I_O_Init();
+	ADC ADC;
+	ADC.Init();
 	U_I_Init();
 
 	printf("Hi, Nick!\n");
 
-	
+	int j = 0;
 
 	HAL_Delay(1000);
 	rsTimer = HAL_GetTick();
@@ -37,7 +38,23 @@ int app()
 	HAL_UART_Receive_IT(&huart1, (uint8_t*)&incomByte, 1);
 	while (1)
 	{
-		I_O_Handler();
+		ADC.Handler();
+
+		if (ADC.isAdcComplete == 1) {
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				char strPrint[20];
+				sprintf(strPrint, "%d: %d    \0", i, ADC.adcDataChannel[i]);
+				ST7789_WriteString(5, 25 + i * 9, strPrint, Font_7x9, WHITE, BLACK);
+			}
+
+			j++;
+			char strPrint[20];
+			sprintf(strPrint, "%d\0", j);
+			ST7789_WriteString(2, 2, strPrint, Font_7x9, WHITE, BLACK);
+
+			ADC.isAdcComplete = 0;
+		}
 
 		if (HAL_GetTick() - timerLed >= 400) {
 			timerLed = HAL_GetTick();
