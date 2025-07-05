@@ -19,7 +19,7 @@ char trStr[34] = "$ABC\naaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 char rsStr[32];
 
 int app()
-{
+{ 
 	printf("Hi, Nick!\n");
 
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
