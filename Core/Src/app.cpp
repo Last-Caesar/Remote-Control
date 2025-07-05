@@ -3,6 +3,8 @@
 #include "app.h"
 #include "string.h"
 #include "st7789v0.h"
+#include "I_O.h"
+#include "User_Interface.h"
 
 extern SPI_HandleTypeDef hspi2;
 extern DMA_HandleTypeDef hdma_spi2_tx;
@@ -15,17 +17,18 @@ uint8_t rsStrPoint = 0;
 bool isStrComplete = 0;
 bool isStrBegin = 0;
 
+
 char trStr[34] = "$ABC\naaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 char rsStr[32];
 
 int app()
 { 
+	I_O_Init();
+	U_I_Init();
+
 	printf("Hi, Nick!\n");
 
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
-	ST7789_Init();
-	ST7789_Fill_Color(GREEN);
-	ST7789_WriteString(20, 10, "Nick Wild", Font_11x18, WHITE, GREEN);
+	
 
 	HAL_Delay(1000);
 	rsTimer = HAL_GetTick();
@@ -34,10 +37,12 @@ int app()
 	HAL_UART_Receive_IT(&huart1, (uint8_t*)&incomByte, 1);
 	while (1)
 	{
-		if (HAL_GetTick() - timerLed >= 1000) {
+		I_O_Handler();
+
+		if (HAL_GetTick() - timerLed >= 400) {
 			timerLed = HAL_GetTick();
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-			HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
+			//HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
 			rsTimer = HAL_GetTick();
 		}
 
@@ -55,6 +60,8 @@ int app()
 				//err
 			}
 		}
+
+		
 
 	}
 	return 0;
@@ -84,21 +91,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 		if (rsStrPoint >= 32) {
 			rsStrPoint = 0;
 		}
-
-
-		//resStrPoint++; 
-		//if (/*gpsOut.resStrPoint >= 83 || */resStr[resStrPoint - 1] == '\n') 
-		//{
-		//	isStrComplete = 1; 
-		//	resStr[resStrPoint] = '\0';
-		//	resStrPoint = 0;
-		//}
-		//if (resStrPoint >= 64)
-		//{
-		//	resStrPoint = 0;
-		//}
-		//printf("%c", resStr[resStrPoint - 1]);
-
 
 		HAL_UART_Receive_IT(&huart1, (uint8_t*)&incomByte, 1);
 	}
