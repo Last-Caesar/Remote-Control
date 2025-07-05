@@ -18,7 +18,7 @@ bool isStrBegin = 0;
 char trStr[34] = "$ABC\naaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 char rsStr[32];
 
-int app()
+int app() 
 { 
 	printf("Hi, Nick!\n");
 
