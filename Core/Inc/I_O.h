@@ -18,10 +18,13 @@ private:
 class BUTTONS
 {
 public:
-	int what_button_pressed(uint8_t leftChannel, uint8_t rightChannel);
-	uint8_t whatButtonPressed;
+	bool eventButtons = 0;
+	uint8_t lButtonsPress[5];
+	uint8_t rButtonsPress[5];
+	uint8_t lbuttonsHold[5];
+	uint8_t rbuttonsHold[5];
 	int Init();
-	int Handler();
+	int Handler(uint16_t lChannel, uint16_t rChannel);
 private:
 };
 

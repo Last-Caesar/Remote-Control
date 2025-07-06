@@ -2,12 +2,17 @@
 #include "main.h"
 #include "stdio.h"
 
+extern ADC_HandleTypeDef hadc1;
+
 uint64_t adcTimer = 0;
 bool adcIsRun = 0;
 bool adcIsComplete = 0;
 uint16_t adcData[ADC_CHANNELS_NUM];
 
-extern ADC_HandleTypeDef hadc1;
+uint64_t lButtTimerNoise = 0;
+uint8_t lWhatButtHadPress = 0;
+uint8_t lButtIsPress = 0;
+uint64_t rButtTimer = 0;
 
 int ADC::Init()
 {
@@ -27,17 +32,70 @@ int ADC::Handler()
         this->isAdcComplete = 1;
     }
 
-    if (HAL_GetTick() - adcTimer > 100 && adcIsRun == 0) {
+    if (HAL_GetTick() - adcTimer > 5 && adcIsRun == 0) {
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcData, ADC_CHANNELS_NUM);
         adcIsRun = 1;
     }
     return 0;
 }
 
-int BUTTONS::what_button_pressed(uint8_t leftChannel, uint8_t rightChannel)
+int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
 {
+    uint8_t lButton = 0;
+    if (lChannel <= 360) {
+        lButton = 1;
+    } else if (lChannel > 360 && lChannel <= 985) {
+        lButton = 2;
+    } else if (lChannel > 985 && lChannel <= 1675) {
+        lButton = 3;
+    } else if (lChannel > 1675 && lChannel <= 2335) {
+        lButton = 4;
+    } else if (lChannel > 2335 && lChannel <= 3100) {
+        lButton = 5;
+    }
+
+    if (lButton > 0 && lWhatButtHadPress == 0) {
+        lWhatButtHadPress = lButton;
+        lButtTimerNoise = HAL_GetTick();
+    }
+
+    if (HAL_GetTick() - lButtTimerNoise > 10 && lWhatButtHadPress > 0) {
+        if (lWhatButtHadPress == lButton) {
+            lButtIsPress = lButton;
+            /*this->lButtonsPress[lButton - 1] += 1;
+            this->eventButtons = 1;*/
+        }
+        lWhatButtHadPress = 0;
+    }
+
+    if (HAL_GetTick() - lButtTimer > 200 && ) {
+
+    }
+
+    uint8_t rButton = 0;
+    if (rChannel <= 315) {
+        rButton = 1;
+    }
+    else if (rChannel > 315 && rChannel <= 985) {
+        rButton = 2;
+    }
+    else if (rChannel > 985 && rChannel <= 1725) {
+        rButton = 3;
+    }
+    else if (rChannel > 1725 && rChannel <= 2550) {
+        rButton = 4;
+    }
+    else if (rChannel > 2550 && rChannel <= 3390) {
+        rButton = 5;
+    }
+
+    if (rButton > 0) {
+        this->rButtonsPress[rButton - 1] += 1;
+    }
+
     return 0;
 }
+
 
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)

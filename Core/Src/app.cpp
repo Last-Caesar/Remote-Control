@@ -46,15 +46,24 @@ int app()
 			for (uint8_t i = 0; i < 8; i++)
 			{
 				char strPrint[20];
-				sprintf(strPrint, "%d: %d    \0", i, adc.adcDataChannel[i]);
+				sprintf(strPrint, "%d: %4d\0", i, adc.adcDataChannel[i]);
 				ST7789_WriteString(5, 25 + i * 9, strPrint, Font_7x9, WHITE, BLACK);
 			}
-			buttons.what_button_pressed(adc.adcDataChannel[1], adc.adcDataChannel[2]);
+			buttons.Handler(adc.adcDataChannel[7], adc.adcDataChannel[1]);
 
 			j++;
 			char strPrint[20];
 			sprintf(strPrint, "%d\0", j);
 			ST7789_WriteString(2, 2, strPrint, Font_7x9, WHITE, BLACK);
+
+			if (buttons.eventButtons == 1) {
+				for (int i = 0; i < 5; i++) {
+					char strPrint[20];
+					sprintf(strPrint, "%d: %d\0", i, buttons.lButtonsPress[i]);
+					ST7789_WriteString(70, 2 + i * 9, strPrint, Font_7x9, WHITE, BLACK);
+				}
+				buttons.eventButtons = 0;
+			}
 
 			adc.isAdcComplete = 0;
 		}
