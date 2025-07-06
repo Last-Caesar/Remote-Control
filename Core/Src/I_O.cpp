@@ -34,6 +34,11 @@ int ADC::Handler()
     return 0;
 }
 
+int BUTTONS::what_button_pressed(uint8_t leftChannel, uint8_t rightChannel)
+{
+    return 0;
+}
+
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
