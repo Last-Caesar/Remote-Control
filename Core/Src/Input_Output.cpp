@@ -1,4 +1,4 @@
-#include "I_O.h"
+#include "Input_Output.h"
 #include "main.h"
 #include "stdio.h"
 
@@ -10,13 +10,17 @@ bool adcIsComplete = 0;
 uint16_t adcData[ADC_CHANNELS_NUM];
 
 uint64_t lButtTimerNoise = 0;
+uint64_t lButtTimerHold = 0;
 uint8_t lWhatButtHadPress = 0;
 uint8_t lButtIsPress = 0;
-uint64_t rButtTimer = 0;
+uint64_t rButtTimerNoise = 0;
+uint64_t rButtTimerHold = 0;
+uint8_t rWhatButtHadPress = 0;
+uint8_t rButtIsPress = 0;
+
 
 int ADC::Init()
 {
-
     return 0;
 }
 
@@ -36,6 +40,11 @@ int ADC::Handler()
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcData, ADC_CHANNELS_NUM);
         adcIsRun = 1;
     }
+    return 0;
+}
+
+int BUTTONS::Init()
+{
     return 0;
 }
 
@@ -60,38 +69,59 @@ int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
     }
 
     if (HAL_GetTick() - lButtTimerNoise > 10 && lWhatButtHadPress > 0) {
-        if (lWhatButtHadPress == lButton) {
+        if (lWhatButtHadPress == lButton && lButtIsPress == 0) {
             lButtIsPress = lButton;
-            /*this->lButtonsPress[lButton - 1] += 1;
-            this->eventButtons = 1;*/
+            this->lButtonsPress[lButton - 1] += 1;
+            this->eventButtons = 1;
+            lButtTimerHold = HAL_GetTick();
         }
         lWhatButtHadPress = 0;
     }
 
-    if (HAL_GetTick() - lButtTimer > 200 && ) {
+    if (HAL_GetTick() - lButtTimerHold > 200 && lButtIsPress == lButton && lButton != 0) {
+        this->lButtonsHold[lButton - 1] += 1;
+    }
 
+    if (lButton == 0) {
+        lButtIsPress = 0;
     }
 
     uint8_t rButton = 0;
     if (rChannel <= 315) {
         rButton = 1;
-    }
-    else if (rChannel > 315 && rChannel <= 985) {
+    } else if (rChannel > 315 && rChannel <= 985) {
         rButton = 2;
-    }
-    else if (rChannel > 985 && rChannel <= 1725) {
+    } else if (rChannel > 985 && rChannel <= 1725) {
         rButton = 3;
-    }
-    else if (rChannel > 1725 && rChannel <= 2550) {
+    } else if (rChannel > 1725 && rChannel <= 2550) {
         rButton = 4;
-    }
-    else if (rChannel > 2550 && rChannel <= 3390) {
+    } else if (rChannel > 2550 && rChannel <= 3390) {
         rButton = 5;
     }
 
-    if (rButton > 0) {
-        this->rButtonsPress[rButton - 1] += 1;
+    if (rButton > 0 && rWhatButtHadPress == 0) {
+        rWhatButtHadPress = rButton;
+        rButtTimerNoise = HAL_GetTick();
     }
+
+    if (HAL_GetTick() - rButtTimerNoise > 10 && rWhatButtHadPress > 0) {
+        if (rWhatButtHadPress == rButton && rButtIsPress == 0) {
+            rButtIsPress = rButton;
+            this->rButtonsPress[rButton - 1] += 1;
+            this->eventButtons = 1;
+            rButtTimerHold = HAL_GetTick();
+        }
+        rWhatButtHadPress = 0;
+    }
+
+    if (HAL_GetTick() - rButtTimerHold > 200 && rButtIsPress == rButton && rButton != 0) {
+        this->rButtonsHold[rButton - 1] += 1;
+    }
+
+    if (rButton == 0) {
+        rButtIsPress = 0;
+    }
+
 
     return 0;
 }
