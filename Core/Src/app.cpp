@@ -8,7 +8,10 @@
 extern UART_HandleTypeDef huart3;
 
 uint32_t timerLed = 0;
-
+uint32_t timerResPackage = 0;
+uint32_t timerAutoPackage = 0;
+uint8_t prevAutoPackage = 0;
+bool isSignalLost_Lock = 0;
 
 int app()
 {
@@ -37,19 +40,47 @@ int app()
 		}
 
 		if (lora.packageIsAvailable) {
+			lora.packageIsAvailable = 0;
+			timerResPackage = HAL_GetTick();
+			if (isSignalLost_Lock == 0) {
+				isSignalLost_Lock = 1;
+				//выпоныть один раз при появлении сигнала
+				//pwm start
+			}
 			// редактирование pwm
 			if (lora.typeResPackage == 1) {
-				currentData.lock = 1;
+				//currentData.lock = 1;
 				//lora.Transmit_Package_A();
 			}
 			else if (lora.typeResPackage == 2) {
-				currentData.lock = 0;
+				//currentData.lock = 0;
 				//lora.Transmit_Package_B();
 			}
-			lora.packageIsAvailable = 0;
 		}
 
-		if (adc.isAdcComplete) {
+		if (HAL_GetTick() - timerResPackage > 100) {
+			if (HAL_GetTick() - timerAutoPackage > 240) {
+				timerAutoPackage = HAL_GetTick();
+				//выполнять постоянно при потере сигнала
+				if (prevAutoPackage == 0) {
+					//lora.Transmit_Package_A();
+					prevAutoPackage = 1;
+				}
+				else if (prevAutoPackage == 1) {
+					//lora.Transmit_Package_B();
+					prevAutoPackage = 0;
+				}
+			}
+
+			if (isSignalLost_Lock == 1) {
+				isSignalLost_Lock = 0;
+				//выполнить один раз при потере сигнала
+				//pwm stop
+			}
+		}
+
+
+		/*if (adc.isAdcComplete) {
 			if (!currentData.lock) {
 				for (int i = 0; i < 3; i++) {
 					currentData.adcCurrentData[i] = adc.dataChannel[i];
@@ -57,7 +88,7 @@ int app()
 			}
 
 			adc.isAdcComplete = 0;
-		}
+		}*/
 
 		/*if (gps.isGpsComplete) {
 			if (!currentData.lock) {

@@ -27,20 +27,23 @@ int LoRa::Handler()
 		if (!strncmp(LoRa_RsStr, "$,", 2))
 		{
 			//принят обычный пакет (без запроса ответа)
-			this->Package_Decoder(LoRa_RsStr);
 			this->typeResPackage = 0; 
+			this->Package_Decoder(LoRa_RsStr);
+			this->packageIsAvailable = 1;
 		}
 		else if (!strncmp(LoRa_RsStr, "$A,", 3))
 		{
 			// пакет типа A
-			this->Package_Decoder(LoRa_RsStr);
 			this->typeResPackage = 1;
+			this->Package_Decoder(LoRa_RsStr);
+			this->packageIsAvailable = 1;
 		}
 		else if (!strncmp(LoRa_RsStr, "$B,", 3))
 		{
 			// пакет типа B
-			this->Package_Decoder(LoRa_RsStr);
 			this->typeResPackage = 2;
+			this->Package_Decoder(LoRa_RsStr);
+			this->packageIsAvailable = 1;
 		}
 		else
 		{
@@ -50,21 +53,28 @@ int LoRa::Handler()
 	return 0;
 }
 
-int LoRa::Transmit_Package_A(uint16_t batteryVoltage, double latitude, double longitude, double altitude, int nSatellites)
+int LoRa::Transmit_Package_A(double batteryVoltage, double latitude, double longitude, int nSatellites)
 {
-	sprintf(trStr, "$A,%4d,%2d.%5d,%3d.%5d,%4d.%2d,%2d\n", batteryVoltage,
-		(int)latitude, (int)((latitude - (int)latitude) * 100000),
-		(int)longitude, (int)((longitude - (int)longitude) * 100000),
-		(int)altitude, (int)((altitude - (int)altitude) * 100),
-		nSatellites);
-	HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
+	if (batteryVoltage >= 0 && batteryVoltage <= 99 && latitude >= 0 && latitude <= 90 && longitude >= 0 && longitude <= 180 && nSatellites >= 0 && nSatellites <= 99) {
+		sprintf(trStr, "$A,%d.%d,%d.%d,%d.%d,%d\n",  // "$A,%2d.%2d,%2d.%5d,%3d.%5d,%2d\n"
+			(int)batteryVoltage, (int)((batteryVoltage - (int)batteryVoltage) * 100), //00.12
+			(int)latitude, (int)((latitude - (int)latitude) * 100000),                //00.12345
+			(int)longitude, (int)((longitude - (int)longitude) * 100000),             //000.12345
+			nSatellites);															  //00
+		HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
+	}
 	return 0;
 }
 
-int LoRa::Transmit_Package_B(double speed, char* timeStr)
+int LoRa::Transmit_Package_B(double speed, double altitude, char* timeStr)
 {
-	sprintf(trStr, "$B,%3d.%2d,%s\n", (int)speed, (int)((speed - (int)speed) * 100), timeStr);
-	HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
+	if (speed >= 0 && speed <= 999 && altitude >= 0 && altitude <= 9999) {
+		sprintf(trStr, "$B,%d.%d,%d.%d,%s\n",
+			(int)speed, (int)((speed - (int)speed) * 100),                           //000.12
+			(int)altitude, (int)((altitude - (int)altitude) * 100),                  //0000.12
+			timeStr);
+		HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
+	}
 	return 0;
 }
 
