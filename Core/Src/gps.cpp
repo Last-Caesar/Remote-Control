@@ -10,13 +10,6 @@ extern char Gps_IncomByte;
 extern char Gps_RsStr[83];
 extern bool Gps_IsStrComplete;
 
-static char latitudeStr[15] = { 0 }; //широта
-static char longitudeStr[15] = { 0 }; //долгота
-static char altitudeStr[15] = { 0 }; //высота над уровнем моря
-static double speedInKnots = 0; //скорость в узлах
-static char speedStr[15] = { 0 };
-static char time[15] = { 0 }; //время
-
 int GPS::Init()
 {
 	HAL_UART_Receive_IT(&huart2, (uint8_t*)&Gps_IncomByte, 1);
@@ -31,6 +24,10 @@ int GPS::Handler()
 		printf("%s", Gps_RsStr);
 		if (!strncmp(Gps_RsStr, "$GPGGA", 6))
 		{
+			char latitudeStr[15] = { 0 }; //широта
+			char longitudeStr[15] = { 0 }; //долгота
+			char altitudeStr[15] = { 0 }; //высота над уровнем моря
+
 			sscanf(Gps_RsStr, "%*[^,],%*[^,],%[^,],%*[^,],%[^,],%*[^,],%*[^,],%d,%*[^,],%[^,]", latitudeStr, longitudeStr, &nSatellite, altitudeStr);
 			latitude = atof(latitudeStr);
 			latitude = (int)latitude / 100 + (double)(latitude - ((int)latitude / 100) * 100) / 60;
@@ -53,10 +50,32 @@ int GPS::Handler()
 		}
 		else if (!strncmp(Gps_RsStr, "$GPRMC", 6))
 		{
-			sscanf(Gps_RsStr, "%*[^,],%[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%[^,]", time, speedStr);
+			char speedStr[15] = { 0 };
+			sscanf(Gps_RsStr, "%*[^,],%[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%[^,]", timeStr, speedStr);
+
+			double speedInKnots = 0; //скорость в узлах
 			speedInKnots = atof(speedStr);
 			speed = speedInKnots * 1.852;
 
+			char hoursStr[3];
+			char minutesStr[3];
+			char secondsStr[3];
+
+			hoursStr[0] = timeStr[0];
+			hoursStr[1] = timeStr[1];
+			hoursStr[2] = '0';
+
+			minutesStr[0] = timeStr[2];
+			minutesStr[1] = timeStr[3];
+			minutesStr[2] = '0';
+
+			secondsStr[0] = timeStr[4];
+			secondsStr[1] = timeStr[5];
+			secondsStr[2] = '0';
+
+			hours = atof(hoursStr);
+			minutes = atof(minutesStr);
+			seconds = atof(secondsStr);
 		}
 
 	}

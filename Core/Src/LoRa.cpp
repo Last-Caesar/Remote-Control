@@ -5,7 +5,7 @@
 
 extern UART_HandleTypeDef huart1;
 
-char trStr[33] = "$ok\naaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+char trStr[33] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
 extern char LoRa_IncomByte;
 extern bool LoRa_IsStrComplete;
@@ -49,9 +49,21 @@ int LoRa::Handler()
 	}
 	return 0;
 }
-int LoRa::Transmit_Package_A(uint16_t voltage1, uint16_t voltage2)
-{
 
+int LoRa::Transmit_Package_A(uint16_t batteryVoltage, double latitude, double longitude, double altitude, int nSatellites)
+{
+	sprintf(trStr, "$A,%4d,%2d.%5d,%3d.%5d,%4d.%2d,%2d\n", batteryVoltage,
+		(int)latitude, (int)((latitude - (int)latitude) * 100000),
+		(int)longitude, (int)((longitude - (int)longitude) * 100000),
+		(int)altitude, (int)((altitude - (int)altitude) * 100),
+		nSatellites);
+	HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
+	return 0;
+}
+
+int LoRa::Transmit_Package_B(double speed, char* timeStr)
+{
+	sprintf(trStr, "$B,%3d.%2d,%s\n", (int)speed, (int)((speed - (int)speed) * 100), timeStr);
 	HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
 	return 0;
 }
@@ -60,11 +72,6 @@ int LoRa::Package_Decoder(char* str)
 {
 	char strChannel1[3], strChannel2[3], strChannel3[3], strChannel4[3], strPref[5]; //газ, рыскание, тангаж, крен, строка с параметрами передаваемыми пакетом
 	sscanf(str, "$%*[^,],%[^,],%[^,],%[^,],%[^,],%[^,]", strChannel1, strChannel2, strChannel3, strChannel4, strPref);
-	strChannel1[2] = '0';
-	strChannel2[2] = '0';
-	strChannel3[2] = '0';
-	strChannel4[2] = '0';
-	strPref[4] = '0';
 	this->channel1 = hex2int(strChannel1);
 	this->channel2 = hex2int(strChannel2);
 	this->channel3 = hex2int(strChannel3);

@@ -12,6 +12,7 @@ public:
 	int nSatellite = 0; //кол. спутников
 	double altitude = 0; //высота над уровнем моря
 	double speed = 0;
+	char timeStr[15] = { 0 }; //время
 	uint8_t hours = 0;
 	uint8_t minutes = 0;
 	uint8_t seconds = 0;
