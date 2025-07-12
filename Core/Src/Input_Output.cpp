@@ -1,0 +1,48 @@
+#include "Input_Output.h"
+#include "main.h"
+#include "stdio.h"
+
+extern ADC_HandleTypeDef hadc1;
+
+uint64_t adcTimer = 0;
+bool adcIsRun = 0;
+bool adcIsComplete = 0;
+uint16_t adcData[ADC_CHANNELS_NUM];
+
+
+int ADC::Init()
+{
+    return 0;
+}
+
+int ADC::Handler()
+{
+    if (adcIsComplete == 1)
+    {
+        for (uint8_t i = 0; i < ADC_CHANNELS_NUM; i++)
+        {
+            this->dataChannel[i] = adcData[i];
+        }
+        adcIsComplete = 0;
+        this->isAdcComplete = 1;
+    }
+
+    if (HAL_GetTick() - adcTimer > 5 && adcIsRun == 0) {
+        HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcData, ADC_CHANNELS_NUM);
+        adcIsRun = 1;
+    }
+    return 0;
+}
+
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        adcTimer = HAL_GetTick();
+        adcIsRun = 0;
+        adcIsComplete = 1;
+        HAL_ADC_Stop_DMA(&hadc1);
+    }
+}
+

@@ -1,0 +1,32 @@
+int LoRa::Package_Decoder(char* str)
+{
+	char strChannel1[3], strChannel2[3], strChannel3[3], strChannel4[3], strPref[5]; //газ, рыскание, тангаж, крен, строка с параметрами передаваемыми пакетом
+	sscanf(str, "$%*[^,],%[^,],%[^,],%[^,],%[^,],%[^,]", strChannel1, strChannel2, strChannel3, strChannel4, strPref);
+	strChannel1[2] = '0';
+	strChannel2[2] = '0';
+	strChannel3[2] = '0';
+	strChannel4[2] = '0';
+	strPref[4] = '0';
+	this->channel1 = hex2int(strChannel1);
+	this->channel2 = hex2int(strChannel2);
+	this->channel3 = hex2int(strChannel3);
+	this->channel4 = hex2int(strChannel4);
+	// +разбор strPref
+	return 0;
+}
+
+uint32_t hex2int(char* hex)
+{
+	uint32_t val = 0;
+	while (*hex) {
+		// get current character then increment
+		uint8_t byte = *hex++;
+		// transform hex character to the 4bit equivalent number, using the ascii table indexes
+		if (byte >= '0' && byte <= '9') byte = byte - '0';
+		else if (byte >= 'a' && byte <= 'f') byte = byte - 'a' + 10;
+		else if (byte >= 'A' && byte <= 'F') byte = byte - 'A' + 10;
+		// shift 4 to make space for new digit, and add the 4 bits of the new digit
+		val = (val << 4) | (byte & 0xF);
+	}
+	return val;
+}

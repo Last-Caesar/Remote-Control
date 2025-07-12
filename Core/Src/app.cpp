@@ -1,108 +1,77 @@
+#include "app.h"
 #include "main.h"
 #include "stdio.h"
-#include "app.h"
-#include "string.h"
-#include "st7789v0.h"
+#include "LoRa.h"
+#include "Input_Output.h"
+#include "gps.h"
 
-extern SPI_HandleTypeDef hspi2;
-extern DMA_HandleTypeDef hdma_spi2_tx;
-extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
 
-uint32_t rsTimer;
 uint32_t timerLed = 0;
-char incomByte;
-uint8_t rsStrPoint = 0;
-bool isStrComplete = 0;
-bool isStrBegin = 0;
 
-char trStr[34] = "$ABC\naaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-char rsStr[32];
 
 int app()
-{ 
+{
+	LoRa lora;
+	ADC adc;
+	GPS gps;
+	CurrentData currentData;
+
+	lora.Init();
+	adc.Init();
+	gps.Init();
+
 	printf("Hi, Nick!\n");
 
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
-	ST7789_Init();
-	ST7789_Fill_Color(GREEN);
-	ST7789_WriteString(20, 10, "Nick Wild", Font_11x18, WHITE, GREEN);
-
-	HAL_Delay(1000);
-	rsTimer = HAL_GetTick();
-	//HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 33);
-
-	HAL_UART_Receive_IT(&huart1, (uint8_t*)&incomByte, 1);
 	while (1)
 	{
-		if (HAL_GetTick() - timerLed >= 1000) {
+		
+		lora.Handler();
+		adc.Handler();
+		gps.Handler();
+
+		if (HAL_GetTick() - timerLed >= 400)
+		{
 			timerLed = HAL_GetTick();
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-			HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
-			rsTimer = HAL_GetTick();
 		}
 
-
-		if (isStrComplete) {
-			isStrComplete = 0;
-			if (!strncmp(rsStr, "$ABC\n", 4))
-			{
-				char strPrint[20];
-				sprintf(strPrint, "resTime: %d\0", HAL_GetTick() - rsTimer);
-				ST7789_WriteString(25, 15, strPrint, Font_11x18, WHITE, GREEN);
+		if (lora.packageIsAvailable) {
+			// редактирование pwm
+			if (lora.typeResPackage == 1) {
+				currentData.lock = 1;
+				//lora.Transmit_Package_A();
 			}
-			else
-			{
-				//err
+			else if (lora.typeResPackage == 2) {
+				currentData.lock = 0;
+				//lora.Transmit_Package_B();
 			}
+			lora.packageIsAvailable = 0;
 		}
 
+		if (adc.isAdcComplete) {
+			if (!currentData.lock) {
+				for (int i = 0; i < 3; i++) {
+					currentData.adcCurrentData[i] = adc.dataChannel[i];
+				}
+			}
+
+			adc.isAdcComplete = 0;
+		}
+
+		/*if (gps.isGpsComplete) {
+			if (!currentData.lock) {
+				for (int i = 0; i < 3; i++) {
+					currentData.gpsCurrentData[i] = gps.DataChannel[i];
+				}
+			}
+
+			gps.isGpsComplete = 0;
+		}*/
+
+		
 	}
 	return 0;
 }
-
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
-{
-	if (huart == &huart1)
-	{
-		if (incomByte == '$') {
-			isStrBegin = 1;
-			rsStrPoint = 0;
-		}
-		else if (incomByte == '\n') {
-			isStrBegin = 0;
-			isStrComplete = 1;
-			rsStr[rsStrPoint] = incomByte;
-			rsStr[rsStrPoint + 1] = '\0';
-		}
-
-		if (isStrBegin == 1) {
-			rsStr[rsStrPoint] = incomByte;
-			rsStrPoint++;
-		}
-
-		if (rsStrPoint >= 32) {
-			rsStrPoint = 0;
-		}
-
-
-		//resStrPoint++; 
-		//if (/*gpsOut.resStrPoint >= 83 || */resStr[resStrPoint - 1] == '\n') 
-		//{
-		//	isStrComplete = 1; 
-		//	resStr[resStrPoint] = '\0';
-		//	resStrPoint = 0;
-		//}
-		//if (resStrPoint >= 64)
-		//{
-		//	resStrPoint = 0;
-		//}
-		//printf("%c", resStr[resStrPoint - 1]);
-
-
-		HAL_UART_Receive_IT(&huart1, (uint8_t*)&incomByte, 1);
-	}
-}
-
 
 
