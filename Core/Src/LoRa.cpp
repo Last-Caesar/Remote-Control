@@ -28,7 +28,7 @@ int LoRa::Handler()
 		{
 			//принят обычный пакет (без запроса ответа)
 			this->Package_Decoder(LoRa_RsStr);
-			this->typeResPackage = 0;
+			this->typeResPackage = 0; 
 		}
 		else if (!strncmp(LoRa_RsStr, "$A,", 3))
 		{
