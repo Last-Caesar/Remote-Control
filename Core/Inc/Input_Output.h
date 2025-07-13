@@ -1,7 +1,8 @@
 #ifndef INPUT_OUTPUT_H
 #define INPUT_OUTPUT_H
 
-#include "main.h"
+#include "stdint.h"
+
 #define ADC_CHANNELS_NUM 8
 
 class ADC

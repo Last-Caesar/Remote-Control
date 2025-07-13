@@ -6,7 +6,6 @@
 
 extern UART_HandleTypeDef huart1;
 
-char trStr[34] = "$ABC\naaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 char rsStr[32];
 
 uint32_t transmitTimer = 0;
@@ -15,6 +14,8 @@ char incomByte;
 uint8_t rsStrPoint = 0;
 bool isStrComplete = 0;
 bool isStrBegin = 0;
+
+char trStr[33] = "$,cc,ba,aa,cc,a\naaaaaaaaaaaaaaaa";
 
 int LoRa::Init()
 {
@@ -28,11 +29,15 @@ int LoRa::Handler()
 {
 	if (isStrComplete) {
 		isStrComplete = 0;
-		if (!strncmp(rsStr, "$ABC\n", 4))
+		if (!strncmp(rsStr, "$A,", 3))
 		{
-			char strPrint[20];
-			sprintf(strPrint, "resTime: %d\0", HAL_GetTick() - rsTimer);
-			//ST7789_WriteString(25, 15, strPrint, Font_11x18, WHITE, GREEN);
+			// принят пакет типа A
+			Package_Decoder_A(rsStr);
+		}
+		else if (!strncmp(rsStr, "$B,", 3))
+		{
+			// принят пакет типа B
+			Package_Decoder_B(rsStr);
 		}
 		else
 		{
@@ -42,15 +47,53 @@ int LoRa::Handler()
 	return 0;
 }
 
-int LoRa::Transmit()
+int LoRa::Transmit_Package(uint8_t packetType, uint8_t channel1, uint8_t channel2, uint8_t channel3, uint8_t channel4, uint16_t param)
 {
+	//char trStr[32] = "$ab,a\naaaaaaaaaaaaaaaaaaaaaaaaa";
+
+	if (packetType == 0) {
+		sprintf(trStr, "$,%x,%x,%x,%x,%x\n", channel1, channel2, channel3, channel4, param);
+	}
+	else if (packetType == 1)
+	{
+		sprintf(trStr, "$a,%x,%x,%x,%x,%x\n", channel1, channel2, channel3, channel4, param);
+	}
+	else if (packetType == 2)
+	{
+		sprintf(trStr, "$b,%x,%x,%x,%x,%x\n", channel1, channel2, channel3, channel4, param);
+	}
+	HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
+	//HAL_UART_Transmit_IT(&huart1, (uint8_t*)tStr, 32);
+	//HAL_UART_Transmit_IT(&huart1, (uint8_t*)"$,cc,ba,aa,cc,a\naaaaaaaaaaaaaaa", 32);
+
 	return 0;
 }
 
-int LoRa::Reserve()
+int LoRa::Package_Decoder_A(char* str)
 {
+	char batteryVoltageStr[15] = { 0 }; //напряжение акб
+	char latitudeStr[15] = { 0 }; //широта
+	char longitudeStr[15] = { 0 }; //долгота
+
+	sscanf(str, "$%*[^,],%[^,],%[^,],%[^,],%d\n", batteryVoltageStr, latitudeStr, longitudeStr, &(this->nSatellite));
+	this->batteryVoltage = atof(batteryVoltageStr);
+	this->latitude = atof(latitudeStr);
+	this->longitude = atof(longitudeStr);
 	return 0;
 }
+
+int LoRa::Package_Decoder_B(char* str)
+{
+	char speed[15] = { 0 }; // скорость
+	char altitude[15] = { 0 }; // высота
+	char timeStr[15] = { 0 }; // время
+
+	sscanf(str, "$%*[^,],%[^,],%[^,],%s\n", speed, altitude, this->timeStr);
+	this->speed = atof(speed);
+	this->altitude = atof(altitude);
+	return 0;
+}
+
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {

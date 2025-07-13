@@ -124,7 +124,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+      HAL_Delay(45);
+      HAL_UART_Transmit_IT(&huart1, "$aa,a\naaaaaaaaaaaaaaaaaaaaaaaaa", 32);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

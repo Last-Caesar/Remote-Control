@@ -122,7 +122,6 @@ int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
         rButtIsPress = 0;
     }
 
-
     return 0;
 }
 

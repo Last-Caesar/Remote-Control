@@ -7,7 +7,6 @@ int j = 0;
 
 int U_I::Init()
 {
-	HAL_Delay(1000);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
 	ST7789_Init();
 	ST7789_Fill_Color(BLACK);
