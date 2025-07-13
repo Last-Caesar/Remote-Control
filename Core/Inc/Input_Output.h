@@ -9,6 +9,7 @@ class ADC
 public:
 	bool isAdcComplete = 0;
 	uint16_t dataChannel[ADC_CHANNELS_NUM];
+	double batteryVoltage = 0;
 	int Init();
 	int Handler();
 private:

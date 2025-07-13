@@ -13,6 +13,8 @@ uint32_t timerAutoPackage = 0;
 uint8_t prevAutoPackage = 0;
 bool isSignalLost_Lock = 0;
 
+uint8_t ledPwm = 400;
+
 int app()
 {
 	LoRa lora;
@@ -33,7 +35,7 @@ int app()
 		adc.Handler();
 		gps.Handler();
 
-		if (HAL_GetTick() - timerLed >= 400)
+		if (HAL_GetTick() - timerLed >= ledPwm)
 		{
 			timerLed = HAL_GetTick();
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
@@ -48,13 +50,14 @@ int app()
 				//pwm start
 			}
 			// редактирование pwm
+			ledPwm = lora.channel1;
 			if (lora.typeResPackage == 1) {
 				//currentData.lock = 1;
-				//lora.Transmit_Package_A();
+				lora.Transmit_Package_A(adc.batteryVoltage, gps.latitude, gps.longitude, gps.nSatellite);
 			}
 			else if (lora.typeResPackage == 2) {
 				//currentData.lock = 0;
-				//lora.Transmit_Package_B();
+				lora.Transmit_Package_B(gps.speed, gps.altitude, gps.timeStr);
 			}
 		}
 
@@ -63,11 +66,11 @@ int app()
 				timerAutoPackage = HAL_GetTick();
 				//выполнять постоянно при потере сигнала
 				if (prevAutoPackage == 0) {
-					//lora.Transmit_Package_A();
+					lora.Transmit_Package_A(adc.batteryVoltage, gps.latitude, gps.longitude, gps.nSatellite);
 					prevAutoPackage = 1;
 				}
 				else if (prevAutoPackage == 1) {
-					//lora.Transmit_Package_B();
+					lora.Transmit_Package_B(gps.speed, gps.altitude, gps.timeStr);
 					prevAutoPackage = 0;
 				}
 			}

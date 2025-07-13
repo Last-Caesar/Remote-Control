@@ -31,14 +31,14 @@ int LoRa::Handler()
 			this->Package_Decoder(LoRa_RsStr);
 			this->packageIsAvailable = 1;
 		}
-		else if (!strncmp(LoRa_RsStr, "$A,", 3))
+		else if (!strncmp(LoRa_RsStr, "$a,", 3))
 		{
 			// пакет типа A
 			this->typeResPackage = 1;
 			this->Package_Decoder(LoRa_RsStr);
 			this->packageIsAvailable = 1;
 		}
-		else if (!strncmp(LoRa_RsStr, "$B,", 3))
+		else if (!strncmp(LoRa_RsStr, "$b,", 3))
 		{
 			// пакет типа B
 			this->typeResPackage = 2;
@@ -93,7 +93,7 @@ int LoRa::Package_Decoder(char* str)
 uint32_t hex2int(char* hex)
 {
 	uint32_t val = 0;
-	while (*hex) {
+	while (*hex != '\0' && *hex != '\n') {
 		// get current character then increment
 		uint8_t byte = *hex++;
 		// transform hex character to the 4bit equivalent number, using the ascii table indexes
