@@ -46,10 +46,10 @@ int app()
 			timerResPackage = HAL_GetTick();
 			if (isSignalLost_Lock == 0) {
 				isSignalLost_Lock = 1;
-				//�������� ���� ��� ��� ��������� �������
+				//выпоныть один раз при появлении сигнала
 				//pwm start
 			}
-			// �������������� pwm
+			// редактирование pwm
 			ledPwm = lora.channel1;
 			//printf("%d\n", lora.channel1);
 			if (lora.typeResPackage == 1) {
@@ -65,7 +65,7 @@ int app()
 		if (HAL_GetTick() - timerResPackage > 100) {
 			if (HAL_GetTick() - timerAutoPackage > 240) {
 				timerAutoPackage = HAL_GetTick();
-				//��������� ��������� ��� ������ �������
+				//выполнять постоянно при потере сигнала
 				if (prevAutoPackage == 0) {
 					lora.Transmit_Package_A(adc.batteryVoltage, gps.latitude, gps.longitude, gps.nSatellite);
 					prevAutoPackage = 1;
@@ -78,7 +78,7 @@ int app()
 
 			if (isSignalLost_Lock == 1) {
 				isSignalLost_Lock = 0;
-				//��������� ���� ��� ��� ������ �������
+				//выполнить один раз при потере сигнала
 				//pwm stop
 			}
 		}
