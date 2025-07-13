@@ -21,12 +21,12 @@ int GPS::Handler()
 	if (Gps_IsStrComplete)
 	{
 		Gps_IsStrComplete = 0;
-		printf("%s", Gps_RsStr);
+		//printf("%s", Gps_RsStr);
 		if (!strncmp(Gps_RsStr, "$GPGGA", 6))
 		{
-			char latitudeStr[15] = { 0 }; //широта
-			char longitudeStr[15] = { 0 }; //долгота
-			char altitudeStr[15] = { 0 }; //высота над уровнем моря
+			char latitudeStr[15] = { 0 }; //пїЅпїЅпїЅпїЅпїЅпїЅ
+			char longitudeStr[15] = { 0 }; //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+			char altitudeStr[15] = { 0 }; //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
 			sscanf(Gps_RsStr, "%*[^,],%*[^,],%[^,],%*[^,],%[^,],%*[^,],%*[^,],%d,%*[^,],%[^,]", latitudeStr, longitudeStr, &nSatellite, altitudeStr);
 			latitude = atof(latitudeStr);
@@ -53,7 +53,7 @@ int GPS::Handler()
 			char speedStr[15] = { 0 };
 			sscanf(Gps_RsStr, "%*[^,],%[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%[^,]", timeStr, speedStr);
 
-			double speedInKnots = 0; //скорость в узлах
+			double speedInKnots = 0; //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
 			speedInKnots = atof(speedStr);
 			speed = speedInKnots * 1.852;
 

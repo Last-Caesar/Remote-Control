@@ -81,7 +81,7 @@ int LoRa::Transmit_Package_B(double speed, double altitude, char* timeStr)
 int LoRa::Package_Decoder(char* str)
 {
 	char strChannel1[3], strChannel2[3], strChannel3[3], strChannel4[3], strPref[5]; //газ, рыскание, тангаж, крен, строка с параметрами передаваемыми пакетом
-	sscanf(str, "$%*[^,],%[^,],%[^,],%[^,],%[^,],%[^,]", strChannel1, strChannel2, strChannel3, strChannel4, strPref);
+	sscanf(str, "%*[^,],%[^,],%[^,],%[^,],%[^,],%S", strChannel1, strChannel2, strChannel3, strChannel4, strPref);
 	this->channel1 = hex2int(strChannel1);
 	this->channel2 = hex2int(strChannel2);
 	this->channel3 = hex2int(strChannel3);
