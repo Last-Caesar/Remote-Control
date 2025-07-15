@@ -63,7 +63,7 @@ int app()
 		}
 
 		if (HAL_GetTick() - timerResPackage > 100) {
-			if (HAL_GetTick() - timerAutoPackage > 240) {
+			if (HAL_GetTick() - timerAutoPackage > 240) { 
 				timerAutoPackage = HAL_GetTick();
 				//выполнять постоянно при потере сигнала
 				if (prevAutoPackage == 0) {
