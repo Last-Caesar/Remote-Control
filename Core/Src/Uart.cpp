@@ -1,7 +1,7 @@
 #include "main.h"
 
 extern UART_HandleTypeDef huart1; // LoRa
-extern UART_HandleTypeDef huart2; // GPS
+extern UART_HandleTypeDef huart3; // GPS
 
 static uint8_t Gps_RsStrPoint = 0;
 static bool Gps_IsStrBegin = 0;
@@ -45,7 +45,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 
 		HAL_UART_Receive_IT(&huart1, (uint8_t*)&LoRa_IncomByte, 1);
 	}
-	if (huart == &huart2)
+	if (huart == &huart3)
 	{
 		if (Gps_IncomByte == '$')
 		{
@@ -72,7 +72,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 			Gps_RsStrPoint = 0;
 		}
 
-		HAL_UART_Receive_IT(&huart2, (uint8_t*)&Gps_IncomByte, 1);
+		HAL_UART_Receive_IT(&huart3, (uint8_t*)&Gps_IncomByte, 1);
 	}
 }
 

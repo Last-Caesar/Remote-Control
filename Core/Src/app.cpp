@@ -5,8 +5,6 @@
 #include "Input_Output.h"
 #include "gps.h"
 
-extern UART_HandleTypeDef huart3;
-
 uint32_t timerLed = 0;
 uint32_t timerResPackage = 0;
 uint32_t timerAutoPackage = 0;

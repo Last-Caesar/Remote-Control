@@ -2,7 +2,7 @@
 #define INPUT_OUTPUT_H
 
 #include "stdint.h"
-#define ADC_CHANNELS_NUM 3
+#define ADC_CHANNELS_NUM 4
 
 class ADC
 {

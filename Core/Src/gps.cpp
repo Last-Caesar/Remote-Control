@@ -4,7 +4,7 @@
 #include "string.h"
 #include "stdlib.h"
 
-extern UART_HandleTypeDef huart2; // GPS
+extern UART_HandleTypeDef huart3; // GPS
 
 extern char Gps_IncomByte;
 extern char Gps_RsStr[83];
@@ -12,7 +12,7 @@ extern bool Gps_IsStrComplete;
 
 int GPS::Init()
 {
-	HAL_UART_Receive_IT(&huart2, (uint8_t*)&Gps_IncomByte, 1);
+	HAL_UART_Receive_IT(&huart3, (uint8_t*)&Gps_IncomByte, 1);
 	return 0;
 }
 
