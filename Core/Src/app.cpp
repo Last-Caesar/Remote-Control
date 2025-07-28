@@ -52,11 +52,12 @@ int app()
 			}
 			// редактирование pwm
 			ledPwm = lora.channel1;
-			TIM1->CCR1 = map(lora.channel1, 0, 255, 1000, 2700);
-			TIM1->CCR2 = map(lora.channel2, 0, 255, 1000, 2700);
-			TIM1->CCR3 = map(lora.channel3, 0, 255, 1000, 2700);
-			TIM1->CCR4 = map(lora.channel4, 0, 255, 1000, 2700);
-			TIM3->CCR1 = map(lora.channel4, 0, 255, 2700, 1000);
+			int temp = map(lora.channel1, 0, 255, 1000, 2000);
+			TIM1->CCR1 = temp;
+			TIM1->CCR2 = map(lora.channel2, 0, 255, 700, 2700);
+			TIM1->CCR3 = map(lora.channel3, 0, 255, 700, 2700);
+			TIM1->CCR4 = map(lora.channel4, 0, 255, 700, 2700);
+			TIM3->CCR1 = map(lora.channel4, 0, 255, 700, 2700);
 			//printf("%d\n", lora.channel1);
 			if (lora.typeResPackage == 1) {
 				//currentData.lock = 1;
