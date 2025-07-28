@@ -21,7 +21,8 @@ class PWM
 public:
 	int Init();
 	int Handler();
-
+	int Start();
+	int Stop();
 private:
 
 };

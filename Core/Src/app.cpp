@@ -18,11 +18,13 @@ int app()
 	LoRa lora;
 	ADC adc;
 	GPS gps;
+	PWM pwm;
 	CurrentData currentData;
 
 	lora.Init();
 	adc.Init();
 	gps.Init();
+	pwm.Init();
 
 	printf("Hi, Nick!\n");
 
@@ -45,10 +47,16 @@ int app()
 			if (isSignalLost_Lock == 0) {
 				isSignalLost_Lock = 1;
 				//выпоныть один раз при появлении сигнала
-				//pwm start
+				pwm.Start();
+
 			}
 			// редактирование pwm
 			ledPwm = lora.channel1;
+			TIM1->CCR1 = map(lora.channel1, 0, 255, 1000, 2700);
+			TIM1->CCR2 = map(lora.channel2, 0, 255, 1000, 2700);
+			TIM1->CCR3 = map(lora.channel3, 0, 255, 1000, 2700);
+			TIM1->CCR4 = map(lora.channel4, 0, 255, 1000, 2700);
+			TIM3->CCR1 = map(lora.channel4, 0, 255, 2700, 1000);
 			//printf("%d\n", lora.channel1);
 			if (lora.typeResPackage == 1) {
 				//currentData.lock = 1;
@@ -77,7 +85,7 @@ int app()
 			if (isSignalLost_Lock == 1) {
 				isSignalLost_Lock = 0;
 				//выполнить один раз при потере сигнала
-				//pwm stop
+				pwm.Stop();
 			}
 		}
 
@@ -107,4 +115,12 @@ int app()
 	return 0;
 }
 
+int map(int x, int in_min, int in_max, int out_min, int out_max)
+{
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
+double map(double x, double in_min, double in_max, double out_min, double out_max)
+{
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
