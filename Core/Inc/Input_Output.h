@@ -23,6 +23,7 @@ public:
 	int Handler();
 	int Start();
 	int Stop();
+	int Set_Null();
 private:
 
 };

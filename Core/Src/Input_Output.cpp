@@ -24,6 +24,7 @@ int ADC::Handler()
         for (uint8_t i = 0; i < ADC_CHANNELS_NUM; i++)
         {
             this->dataChannel[i] = adcData[i];
+            dataChannel[0];
         }
         adcIsComplete = 0;
         this->isAdcComplete = 1;
@@ -59,6 +60,16 @@ int PWM::Stop()
     HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
     HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_4);
     HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+    return 0;
+}
+
+int PWM::Set_Null()
+{
+    TIM1->CCR1 = 0;
+    TIM1->CCR2 = 1700;
+    TIM1->CCR3 = 1700;
+    TIM1->CCR4 = 1700;
+    TIM3->CCR1 = 1700;
     return 0;
 }
 
