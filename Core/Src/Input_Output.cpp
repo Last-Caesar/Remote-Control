@@ -11,6 +11,9 @@ bool adcIsRun = 0;
 bool adcIsComplete = 0;
 uint16_t adcData[ADC_CHANNELS_NUM];
 
+double adcVoltage[3] = { 0 };
+double bankVoltage[3] = { 0 };
+int countOfReads = 0;
 
 int ADC::Init()
 {
@@ -21,13 +24,21 @@ int ADC::Handler()
 {
     if (adcIsComplete == 1)
     {
-        for (uint8_t i = 0; i < ADC_CHANNELS_NUM; i++)
-        {
-            this->dataChannel[i] = adcData[i];
-            dataChannel[0];
-        }
         adcIsComplete = 0;
         this->isAdcComplete = 1;
+        countOfReads += 1;
+        for (uint8_t i = 0; i < 3; i++)
+        {
+            //this->dataChannel[i] = adcData[i];
+            adcVoltage[i] = 1.2 / adcData[0] * adcData[i + 1];
+        }
+
+        bankVoltage[0] = adcVoltage[0] * 5.6;
+        bankVoltage[1] = adcVoltage[1] * 6.13;
+        bankVoltage[2] = adcVoltage[2] * 6.45;
+
+        bankVoltage[2] -= bankVoltage[1];
+        bankVoltage[1] -= bankVoltage[0];
     }
 
     if (HAL_GetTick() - adcTimer > 5 && adcIsRun == 0) {
