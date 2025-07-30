@@ -51,7 +51,7 @@ int BUTTONS::Init()
 int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
 {
     uint8_t lButton = 0;
-    if (lChannel <= 360) {
+    if (lChannel <= 360) { //определяем какая кнопка сейчас нажата
         lButton = 1;
     } else if (lChannel > 360 && lChannel <= 985) {
         lButton = 2;
@@ -63,13 +63,13 @@ int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
         lButton = 5;
     }
 
-    if (lButton > 0 && lWhatButtHadPress == 0) {
+    if (lButton > 0 && lWhatButtHadPress == 0) { //запоминаем состояние и запускаем таймер
         lWhatButtHadPress = lButton;
         lButtTimerNoise = HAL_GetTick();
     }
 
-    if (HAL_GetTick() - lButtTimerNoise > 10 && lWhatButtHadPress > 0) {
-        if (lWhatButtHadPress == lButton && lButtIsPress == 0) {
+    if (HAL_GetTick() - lButtTimerNoise > 10 && lWhatButtHadPress > 0) { //после дребезга снова проверяем состояние
+        if (lWhatButtHadPress == lButton && lButtIsPress == 0) { //если совпало, то это нужная кнопка
             lButtIsPress = lButton;
             this->lButtonsPress[lButton - 1] += 1;
             this->eventButtons = 1;
@@ -79,11 +79,15 @@ int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
     }
 
     if (HAL_GetTick() - lButtTimerHold > 200 && lButtIsPress == lButton && lButton != 0) {
-        this->lButtonsHold[lButton - 1] += 1;
+        this->eventButtons = 1;
+        this->lButtonsHoldCounter[lButton - 1] += 1;
+        this->lButtonsIsHold[lButton - 1] = 1;
     }
 
     if (lButton == 0) {
         lButtIsPress = 0;
+        for (uint8_t i; i < 5; i++)
+            this->lButtonsIsHold[i] = 0;
     }
 
     uint8_t rButton = 0;
@@ -115,11 +119,15 @@ int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
     }
 
     if (HAL_GetTick() - rButtTimerHold > 200 && rButtIsPress == rButton && rButton != 0) {
-        this->rButtonsHold[rButton - 1] += 1;
+        this->eventButtons = 1;
+        this->rButtonsHoldCounter[rButton - 1] += 1;
+        this->rButtonsIsHold[rButton - 1] = 1;
     }
 
     if (rButton == 0) {
         rButtIsPress = 0;
+        for (uint8_t i; i < 5; i++)
+            this->rButtonsIsHold[i] = 0;
     }
 
     return 0;

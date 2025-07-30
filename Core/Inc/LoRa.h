@@ -18,6 +18,8 @@ public:
 	double speed = 0;
 	char timeStr[15] = { 0 }; //время
 
+	bool packageIsAviable = 0;
+	uint8_t typeResPack = 0;
 
 private:
 

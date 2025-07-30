@@ -8,10 +8,14 @@ public:
 	int Init();
 	int Handler();
 	int PrintScreen1();
+	int print_pack_A(int nSatellite, double latitude, double longitude, double batteryVoltage);
+	int print_pack_B(double altitude, double speed, char* timeStr);
+	int Print_res_stat(bool stat);
+	int Print_tr_stat(bool stat);
 	int PrintScreen2();
-	int print_adc_Channel(uint16_t *adcDataChannel);
+	int print_adc_Channel(uint16_t* adcDataChannel);
 	int print_buttons_press(uint8_t* lButtonsPress, uint8_t* rButtonsPress);
-	int print_buttons_hold(uint8_t *lButtonsHold, uint8_t *rButtonsHold);
+	int print_buttons_hold(uint8_t* lButtonsHold, uint8_t* rButtonsHold, bool* lButtonsIsHold, bool* rButtonsIsHold);
 	int currentScreen = 0;
 	int previousScreen = 0;
 private:

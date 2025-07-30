@@ -32,11 +32,15 @@ int LoRa::Handler()
 		if (!strncmp(rsStr, "$A,", 3))
 		{
 			// принят пакет типа A
+			packageIsAviable = 1;
+			typeResPack = 1;
 			Package_Decoder_A(rsStr);
 		}
 		else if (!strncmp(rsStr, "$B,", 3))
 		{
 			// принят пакет типа B
+			typeResPack = 2;
+			packageIsAviable = 1;
 			Package_Decoder_B(rsStr);
 		}
 		else
