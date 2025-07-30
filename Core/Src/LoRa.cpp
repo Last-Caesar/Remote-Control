@@ -75,7 +75,7 @@ int LoRa::Package_Decoder_A(char* str)
 	char latitudeStr[15] = { 0 }; //широта
 	char longitudeStr[15] = { 0 }; //долгота
 
-	sscanf(str, "$%*[^,],%[^,],%[^,],%[^,],%d\n", batteryVoltageStr, latitudeStr, longitudeStr, &(this->nSatellite));
+	sscanf(str, "%*[^,],%[^,],%[^,],%[^,],%d\n", batteryVoltageStr, latitudeStr, longitudeStr, &(this->nSatellite));
 	this->batteryVoltage = atof(batteryVoltageStr);
 	this->latitude = atof(latitudeStr);
 	this->longitude = atof(longitudeStr);
@@ -88,7 +88,7 @@ int LoRa::Package_Decoder_B(char* str)
 	char altitude[15] = { 0 }; // высота
 	char timeStr[15] = { 0 }; // время
 
-	sscanf(str, "$%*[^,],%[^,],%[^,],%s\n", speed, altitude, this->timeStr);
+	sscanf(str, "%*[^,],%[^,],%[^,],%s\n", speed, altitude, this->timeStr);
 	this->speed = atof(speed);
 	this->altitude = atof(altitude);
 	return 0;
