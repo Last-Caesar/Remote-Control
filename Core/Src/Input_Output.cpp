@@ -6,14 +6,15 @@ extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
 
-uint64_t adcTimer = 0;
-bool adcIsRun = 0;
-bool adcIsComplete = 0;
-uint16_t adcData[ADC_CHANNELS_NUM];
+static uint64_t adcTimer = 0;
+static bool adcIsRun = 0;
+static bool adcIsComplete = 0;
+static uint16_t adcData[ADC_CHANNELS_NUM];
 
-double adcVoltage[3] = { 0 };
-double bankVoltage[3] = { 0 };
-int countOfReads = 0;
+static double adcVoltage[3] = { 0 };
+static double bankVoltage[3] = { 0 };
+static double bankVoltageSum[3] = { 0 };
+static int countOfReads = 0;
 
 int ADC::Init()
 {
@@ -33,12 +34,16 @@ int ADC::Handler()
             adcVoltage[i] = 1.2 / adcData[0] * adcData[i + 1];
         }
 
-        bankVoltage[0] = adcVoltage[0] * 5.6;
-        bankVoltage[1] = adcVoltage[1] * 6.13;
-        bankVoltage[2] = adcVoltage[2] * 6.45;
+        bankVoltage[0] = adcVoltage[0] * 5.91;
+        bankVoltage[1] = adcVoltage[1] * 6.1786;
+        bankVoltage[2] = adcVoltage[2] * 6.1865;
 
         bankVoltage[2] -= bankVoltage[1];
         bankVoltage[1] -= bankVoltage[0];
+
+        for (uint8_t i = 0; i < 3; i++)
+            bankVoltageSum[i] += bankVoltage[i];
+        
     }
 
     if (HAL_GetTick() - adcTimer > 5 && adcIsRun == 0) {
@@ -46,6 +51,29 @@ int ADC::Handler()
         adcIsRun = 1;
     }
     return 0;
+}
+
+double ADC::GetMinVolteOfPeriod()
+{
+    double bankVoltAver[3] = { 0 };
+    double minVolt = 0;
+    for (uint8_t i = 0; i < 3; i++)
+        bankVoltAver[i] = bankVoltageSum[i] / countOfReads;
+    if (bankVoltAver[0] < bankVoltAver[1])
+        if (bankVoltAver[0] < bankVoltAver[2])
+            minVolt = bankVoltAver[0];
+        else
+            minVolt = bankVoltAver[2];
+    else
+        if (bankVoltAver[1] < bankVoltAver[2])
+            minVolt = bankVoltAver[1];
+        else
+            minVolt = bankVoltAver[2];
+    for (uint8_t i = 0; i < 3; i++)
+        bankVoltageSum[i] = 0;
+    countOfReads = 0;
+
+    return minVolt;
 }
 
 int PWM::Init()

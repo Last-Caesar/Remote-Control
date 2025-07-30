@@ -66,7 +66,7 @@ int app()
 			//printf("%d\n", lora.channel1);
 			if (lora.typeResPackage == 1) {
 				//currentData.lock = 1;
-				lora.Transmit_Package_A(adc.batteryVoltage, gps.latitude, gps.longitude, gps.nSatellite);
+				lora.Transmit_Package_A(adc.GetMinVolteOfPeriod(), gps.latitude, gps.longitude, gps.nSatellite);
 			}
 			else if (lora.typeResPackage == 2) {
 				//currentData.lock = 0;
@@ -89,7 +89,7 @@ int app()
 				timerAutoPackage = HAL_GetTick();
 				//выполнять постоянно при потере сигнала с периодом 240мс
 				if (prevAutoPackage == 0) {
-					lora.Transmit_Package_A(adc.batteryVoltage, gps.latitude, gps.longitude, gps.nSatellite);
+					lora.Transmit_Package_A(adc.GetMinVolteOfPeriod(), gps.latitude, gps.longitude, gps.nSatellite);
 					prevAutoPackage = 1;
 				}
 				else if (prevAutoPackage == 1) {
