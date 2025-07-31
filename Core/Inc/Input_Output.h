@@ -10,6 +10,7 @@ class ADC
 public:
 	bool isAdcComplete = 0;
 	uint16_t adcDataChannel[ADC_CHANNELS_NUM];
+	double batVolt = 0;
 	int Init();
 	int Handler();
 private:

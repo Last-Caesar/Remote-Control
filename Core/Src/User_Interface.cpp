@@ -11,6 +11,7 @@ int U_I::Init()
 	ST7789_Init();
 	ST7789_Fill_Color(BLACK);
 	PrintScreen1();
+	Print_tr_stat(0);
 	//ST7789_WriteString(20, 10, "Nick Wild", Font_11x18, WHITE, GREEN);
 	return 0;
 }
@@ -88,6 +89,7 @@ int U_I::PrintScreen1()
 	ST7789_WriteString(0, 174, "time:", Font_7x9, WHITE, BLACK);
 	ST7789_WriteString(0, 183, "resStat:", Font_7x9, WHITE, BLACK);
 	ST7789_WriteString(0, 192, "trStat:", Font_7x9, WHITE, BLACK);
+	ST7789_WriteString(0, 201, "batVolt:", Font_7x9, WHITE, BLACK);
 	return 0;
 }
 
@@ -103,11 +105,12 @@ int U_I::Print_res_stat(bool stat)
 int U_I::Print_tr_stat(bool stat)
 {
 	if (stat)
-		ST7789_WriteString(49, 183, "ok  ", Font_7x9, WHITE, BLACK);
+		ST7789_WriteString(49, 192, "ok  ", Font_7x9, WHITE, BLACK);
 	else
-		ST7789_WriteString(49, 183, "lock", Font_7x9, WHITE, BLACK);
+		ST7789_WriteString(49, 192, "lock", Font_7x9, WHITE, BLACK);
 	return 0;
 }
+
 
 int U_I::print_pack_A(int nSatellite, double latitude, double longitude, double batteryVoltage)
 {
@@ -120,6 +123,7 @@ int U_I::print_pack_A(int nSatellite, double latitude, double longitude, double 
 	ST7789_WriteString(35, 138, strPrint, Font_7x9, WHITE, BLACK);
 	sprintf(strPrint, "%d.%d\0", (int)batteryVoltage, (int)((batteryVoltage - (int)batteryVoltage) * 100));
 	ST7789_WriteString(56, 165, strPrint, Font_7x9, WHITE, BLACK);
+
 	return 0;
 }
 
@@ -131,6 +135,7 @@ int U_I::print_pack_B(double altitude, double speed, char* timeStr)
 	sprintf(strPrint, "%d.%d\0", (int)speed, (int)((speed - (int)speed) * 100));
 	ST7789_WriteString(42, 156, strPrint, Font_7x9, WHITE, BLACK);
 	ST7789_WriteString(35, 174, timeStr, Font_7x9, WHITE, BLACK);
+
 	return 0;
 }
 

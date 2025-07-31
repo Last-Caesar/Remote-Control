@@ -16,6 +16,11 @@ uint8_t counterReqPack = 0;
 bool reqPack_Lock = 0;
 uint8_t typePrevPack = 2;
 
+int countTrInfoPackA = 0;
+int countTrInfoPackB = 0;
+
+bool lockEvent_Lock = 0;
+bool trIsLock = 1;
 
 int app()
 { 
@@ -45,7 +50,7 @@ int app()
 			//rsTimer = HAL_GetTick();
 		}
 
-		if (HAL_GetTick() - timerTransmitPackage >= 55 && reqPack_Lock == 0) {
+		if (HAL_GetTick() - timerTransmitPackage >= 55 && reqPack_Lock == 0 && trIsLock == 0) {
 			timerTransmitPackage = HAL_GetTick();
 			counterReqPack++;
 			uint8_t channel1 = map(adc.adcDataChannel[6], 0, 4095, 0, 255); // газ 
@@ -58,15 +63,25 @@ int app()
 				timerReqPack = HAL_GetTick();
 				if (typePrevPack == 2) {
 					lora.Transmit_Package(1, channel1, channel2, channel3, channel4, 1);
+
+					char strPrint[20];
+					sprintf(strPrint, "%3d\0", countTrInfoPackA++);
+					ST7789_WriteString(120, 129, strPrint, Font_7x9, WHITE, BLACK);
+
 					typePrevPack = 1;
 				}
 				else if (typePrevPack == 1) {
 					lora.Transmit_Package(2, channel1, channel2, channel3, channel4, 1);
+
+					char strPrint[20];
+					sprintf(strPrint, "%3d\0", countTrInfoPackB++);
+					ST7789_WriteString(150, 129, strPrint, Font_7x9, WHITE, BLACK);
+
 					typePrevPack = 2;
 				}
 			}
 			else
-				lora.Transmit_Package(0, channel1, channel2, channel3, channel4, 1);
+				lora.Transmit_Package(0, channel1, channel2, channel3, channel4, 1); 
 		}
 
 		//if (counterReqPack >= 10) {    //выполн€ть один раз на каждые 10 обычных пакетов
@@ -100,12 +115,20 @@ int app()
 			if (lora.typeResPack == 1) {
 				gui.print_pack_A(lora.nSatellite, lora.latitude, lora.longitude, lora.batteryVoltage);
 				
-				char strPrint[20];
-				sprintf(strPrint, "%d     \0", timeReqPack);
-				ST7789_WriteString(120, 120, strPrint, Font_7x9, WHITE, BLACK);
+				if (timeReqPack < 130) {
+					char strPrint[20];
+					sprintf(strPrint, "%3d \0", timeReqPack);
+					ST7789_WriteString(120, 120, strPrint, Font_7x9, WHITE, BLACK);
+				}
 			}
 			else if (lora.typeResPack == 2) {
 				gui.print_pack_B(lora.altitude, lora.speed, lora.timeStr);
+
+				if (timeReqPack < 130) {
+					char strPrint[20];
+					sprintf(strPrint, "%3d \0", timeReqPack);
+					ST7789_WriteString(150, 120, strPrint, Font_7x9, WHITE, BLACK);
+				}
 			}
 		}
 
@@ -122,8 +145,24 @@ int app()
 			gui.print_adc_Channel(adc.adcDataChannel);
 			if (buttons.eventButtons == 1) {
 				gui.print_buttons_press(buttons.lButtonsPress, buttons.rButtonsPress);
-				gui.print_buttons_hold(buttons.lButtonsHoldCounter, buttons.rButtonsHoldCounter, buttons.lButtonsIsHold, buttons.rButtonsIsHold);
 				buttons.eventButtons = 0;
+			}
+			gui.print_buttons_hold(buttons.lButtonsHoldCounter, buttons.rButtonsHoldCounter, buttons.lButtonsIsHold, buttons.rButtonsIsHold);
+			//вывести напр€жение акб
+			if (buttons.lButtonsIsHold[3] == 1 && buttons.rButtonsIsHold[3] == 1 && lockEvent_Lock == 0) { //выполн€етс€ каждый раз когда зажаты обе кнопки
+				lockEvent_Lock = 1;
+				if (trIsLock) {
+					gui.Print_tr_stat(0);
+					trIsLock = 0;
+				}
+				else {
+					gui.Print_tr_stat(1);
+					trIsLock = 1;
+				}
+			}
+
+			if ((buttons.lButtonsIsHold[3] == 0 || buttons.rButtonsIsHold[3] == 0) && lockEvent_Lock == 1) { //выполн€етс€ когда одна из кнопок отпущена
+				lockEvent_Lock = 0;
 			}
 
 			adc.isAdcComplete = 0;

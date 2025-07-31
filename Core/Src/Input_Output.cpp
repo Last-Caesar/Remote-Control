@@ -32,6 +32,7 @@ int ADC::Handler()
         {
             this->adcDataChannel[i] = adcData[i];
         }
+        batVolt = 1.2 / adcDataChannel[0] * adcDataChannel[3] * 10;
         adcIsComplete = 0;
         this->isAdcComplete = 1;
     }
@@ -86,7 +87,7 @@ int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
 
     if (lButton == 0) {
         lButtIsPress = 0;
-        for (uint8_t i; i < 5; i++)
+        for (uint8_t i = 0; i < 5; i++)
             this->lButtonsIsHold[i] = 0;
     }
 
@@ -126,7 +127,7 @@ int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
 
     if (rButton == 0) {
         rButtIsPress = 0;
-        for (uint8_t i; i < 5; i++)
+        for (uint8_t i = 0; i < 5; i++)
             this->rButtonsIsHold[i] = 0;
     }
 
