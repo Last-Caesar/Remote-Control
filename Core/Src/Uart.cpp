@@ -28,6 +28,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 		{
 			LoRa_IsStrBegin = 0;
 			LoRa_IsStrComplete = 1;
+			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 			LoRa_RsStr[LoRa_RsStrPoint] = LoRa_IncomByte;
 			LoRa_RsStr[LoRa_RsStrPoint + 1] = '\0';
 		}

@@ -104,7 +104,7 @@ int PWM::Stop()
 
 int PWM::Set_Null()
 {
-    TIM1->CCR1 = 0;
+    TIM1->CCR1 = 1000;
     TIM1->CCR2 = 1700;
     TIM1->CCR3 = 1700;
     TIM1->CCR4 = 1700;

@@ -13,6 +13,7 @@ extern char LoRa_RsStr[32];
 
 int LoRa::Init()
 {
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
 	HAL_Delay(1000);
 
 	HAL_UART_Receive_IT(&huart1, (uint8_t*)&LoRa_IncomByte, 1);
@@ -55,6 +56,7 @@ int LoRa::Handler()
 
 int LoRa::Transmit_Package_A(double batteryVoltage, double latitude, double longitude, int nSatellites)
 {
+	while(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == 0) {} //высокий aux - нормальный режим работы
 	if (batteryVoltage >= 0 && batteryVoltage <= 99 && latitude >= 0 && latitude <= 90 && longitude >= 0 && longitude <= 180 && nSatellites >= 0 && nSatellites <= 99) {
 		sprintf(trStr, "$A,%d.%d,%d.%d,%d.%d,%d\n",  // "$A,%2d.%2d,%2d.%5d,%3d.%5d,%2d\n"
 			(int)batteryVoltage, (int)((batteryVoltage - (int)batteryVoltage) * 100), //00.12
@@ -63,17 +65,26 @@ int LoRa::Transmit_Package_A(double batteryVoltage, double latitude, double long
 			nSatellites);															  //00
 		HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
 	}
+	else
+	{
+		HAL_UART_Transmit_IT(&huart1, (uint8_t*)"$A,0.0,0.0,0.0,0\naaaaaaaaaaaaaaa", 32);
+	}
 	return 0;
 }
 
 int LoRa::Transmit_Package_B(double speed, double altitude, char* timeStr)
 {
+	while (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == 0) {} //высокий aux - нормальный режим работы
 	if (speed >= 0 && speed <= 999 && altitude >= 0 && altitude <= 9999) {
 		sprintf(trStr, "$B,%d.%d,%d.%d,%s\n",
 			(int)speed, (int)((speed - (int)speed) * 100),                           //000.12
 			(int)altitude, (int)((altitude - (int)altitude) * 100),                  //0000.12
 			timeStr);
 		HAL_UART_Transmit_IT(&huart1, (uint8_t*)trStr, 32);
+	}
+	else
+	{
+		HAL_UART_Transmit_IT(&huart1, (uint8_t*)"$B,0.0,0.0,0\naaaa0000aaaaaaaaaaa", 32);
 	}
 	return 0;
 }

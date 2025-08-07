@@ -18,6 +18,17 @@ bool lostSignal_1700ms_Lock = 0;
 
 uint8_t ledPwm = 400;
 
+//отладка
+uint8_t ch1;
+uint8_t ch2;
+uint8_t ch3;
+uint8_t ch4;
+uint16_t ch11;
+uint16_t ch22;
+uint16_t ch33;
+uint16_t ch44;
+//
+
 int app()
 {
 	LoRa lora;
@@ -40,11 +51,11 @@ int app()
 		adc.Handler();
 		gps.Handler();
 
-		if (HAL_GetTick() - timerLed >= ledPwm)
+		/*if (HAL_GetTick() - timerLed >= ledPwm)
 		{
 			timerLed = HAL_GetTick();
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		}
+		}*/
 
 		if (lora.packageIsAvailable) {
 			lora.packageIsAvailable = 0;
@@ -56,13 +67,21 @@ int app()
 
 			}
 			// редактирование pwm
+
+			ch1 = lora.channel2;
+			ch2 = lora.channel3;
+			ch3 = lora.channel4;
+
 			ledPwm = lora.channel1;
 			int temp = map(lora.channel1, 0, 255, 1000, 2000);
 			TIM1->CCR1 = temp;
-			TIM1->CCR2 = map(lora.channel2, 0, 255, 700, 2700);
-			TIM1->CCR3 = map(lora.channel3, 0, 255, 700, 2700);
-			TIM1->CCR4 = map(lora.channel4, 0, 255, 700, 2700);
-			TIM3->CCR1 = map(lora.channel4, 0, 255, 2700, 700);
+			TIM1->CCR2 = map(lora.channel2, 0, 255, 500, 3000);
+			ch11 = map(lora.channel2, 0, 255, 500, 3000);
+			TIM1->CCR3 = map(lora.channel3, 0, 255, 2300, 400);
+			ch22 = map(lora.channel3, 0, 255, 500, 3000);
+			TIM1->CCR4 = map(lora.channel4, 0, 255, 400, 2300);
+			ch33 = map(lora.channel4, 0, 255, 1200, 3000);
+			TIM3->CCR1 = map(lora.channel4, 0, 255, 400, 2300);
 			//printf("%d\n", lora.channel1);
 			if (lora.typeResPackage == 1) {
 				//currentData.lock = 1;
@@ -74,12 +93,13 @@ int app()
 			}
 		}
 
-		if (HAL_GetTick() - timerResPackage > 100) {
+		if (HAL_GetTick() - timerResPackage > 300) {
 			//выполнять постоянно при потере сигнала
 
 			if (isSignalLost_Lock == 1) {
 				isSignalLost_Lock = 0;
 				//выполнить один раз при потере сигнала
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_RESET);
 				timerLostSignal_1000ms = HAL_GetTick();
 				lostSignal_1000ms_Lock = 0;
 			}
@@ -88,6 +108,7 @@ int app()
 			if (HAL_GetTick() - timerAutoPackage > 240) { 
 				timerAutoPackage = HAL_GetTick();
 				//выполнять постоянно при потере сигнала с периодом 240мс
+				
 				if (prevAutoPackage == 0) {
 					lora.Transmit_Package_A(adc.GetMinVolteOfPeriod(), gps.latitude, gps.longitude, gps.nSatellite);
 					prevAutoPackage = 1;
@@ -101,6 +122,7 @@ int app()
 			if (HAL_GetTick() - timerLostSignal_1000ms >= 1000 && lostSignal_1000ms_Lock == 0) {
 				lostSignal_1000ms_Lock = 1;
 				//выполнить один раз через 1000мс после потери сигнала
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
 				pwm.Set_Null();
 				timerLostSignal_1700ms = HAL_GetTick();
 				lostSignal_1700ms_Lock = 0;
