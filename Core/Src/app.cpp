@@ -77,11 +77,11 @@ int app()
 			TIM1->CCR1 = temp;
 			TIM1->CCR2 = map(lora.channel2, 0, 255, 500, 3000);
 			ch11 = map(lora.channel2, 0, 255, 500, 3000);
-			TIM1->CCR3 = map(lora.channel3, 0, 255, 2300, 400);
+			TIM1->CCR3 = map(lora.channel3, 0, 255, 400, 2500);
 			ch22 = map(lora.channel3, 0, 255, 500, 3000);
-			TIM1->CCR4 = map(lora.channel4, 0, 255, 400, 2300);
+			TIM1->CCR4 = map(lora.channel4, 0, 255, 400, 2500);
 			ch33 = map(lora.channel4, 0, 255, 1200, 3000);
-			TIM3->CCR1 = map(lora.channel4, 0, 255, 400, 2300);
+			TIM3->CCR1 = map(lora.channel4, 0, 255, 400, 2500);
 			//printf("%d\n", lora.channel1);
 			if (lora.typeResPackage == 1) {
 				//currentData.lock = 1;
