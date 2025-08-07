@@ -3,6 +3,8 @@
 #include "stdio.h"
 
 extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 
 uint64_t adcTimer = 0;
 bool adcIsRun = 0;
@@ -18,6 +20,10 @@ uint64_t rButtTimerHold = 0;
 uint8_t rWhatButtHadPress = 0;
 uint8_t rButtIsPress = 0;
 
+static bool postBattAirAlarmLock = 0;
+static uint64_t battAirAlarmTimer = 0;
+static uint64_t battAirAlarmPeriodOfSignals = 0;
+static uint64_t battAirAlarmFreq = 0;
 
 int ADC::Init()
 {
@@ -46,6 +52,13 @@ int ADC::Handler()
 
 int BUTTONS::Init()
 {
+    //HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, GPIO_PIN_RESET);
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+    TIM2->CCR1 = 0; // включить светодиод на полную яркость
+    TIM3->CCR1 = 0; // выключить пищалку (подать ноль)
+
+    enBattAirAlarm = 1;
     return 0;
 }
 
@@ -130,6 +143,40 @@ int BUTTONS::Handler(uint16_t lChannel, uint16_t rChannel)
         for (uint8_t i = 0; i < 5; i++)
             this->rButtonsIsHold[i] = 0;
     }
+
+
+    //далее идет обработка индикации через пищалку и светодиод
+
+    if (enBattAirAlarm) {
+        enBattAirAlarm = 0;
+        battAirAlarmTimer = HAL_GetTick();
+    }
+
+    if (HAL_GetTick() - battAirAlarmTimer <= 2000) {
+        //выполнять в течение 2 секунд
+        
+        if (HAL_GetTick() - battAirAlarmFreq >= 100) {
+            //выполнять каждые 100 мс
+            static bool trLg = 0;
+            if (trLg == 0) {
+                TIM3->CCR1 = 30; // максимальная громкость = 249
+                trLg = 1;
+            }
+            else {
+                TIM3->CCR1 = 0; // максимальная громкость = 249
+                trLg = 0;
+            }
+            battAirAlarmFreq = HAL_GetTick();
+            postBattAirAlarmLock = 0;
+        }
+    }
+
+    if (HAL_GetTick() - battAirAlarmTimer > 2000 && postBattAirAlarmLock == 0) {
+        postBattAirAlarmLock = 1;
+        TIM3->CCR1 = 0;
+        //HAL_GPIO_WritePin(buz_GPIO_Port, buz_Pin, GPIO_PIN_RESET);
+    }
+
 
     return 0;
 }

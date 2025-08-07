@@ -27,6 +27,7 @@ public:
 	uint16_t rButtonsHoldCounter[5] = { 0 };
 	bool lButtonsIsHold[5] = { 0 };
 	bool rButtonsIsHold[5] = { 0 };
+	bool enBattAirAlarm = 0;
 	int Init();
 	int Handler(uint16_t lChannel, uint16_t rChannel);
 private:
