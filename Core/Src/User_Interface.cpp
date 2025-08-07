@@ -11,7 +11,7 @@ int U_I::Init()
 	ST7789_Init();
 	ST7789_Fill_Color(BLACK);
 	PrintScreen1();
-	Print_tr_stat(0);
+	Print_tr_stat(1);
 	//ST7789_WriteString(20, 10, "Nick Wild", Font_11x18, WHITE, GREEN);
 	return 0;
 }
@@ -38,7 +38,7 @@ int U_I::print_adc_Channel(uint16_t* adcDataChannel)
 	return 0;
 }
 
-int U_I::print_buttons_press(uint8_t* lButtonsPress, uint8_t* rButtonsPress)
+int U_I::print_buttons_press(uint16_t* lButtonsPress, uint16_t* rButtonsPress)
 {
 	for (int i = 0; i < 5; i++) {
 		char strPrint[20];
@@ -53,7 +53,7 @@ int U_I::print_buttons_press(uint8_t* lButtonsPress, uint8_t* rButtonsPress)
 	return 0;
 }
 
-int U_I::print_buttons_hold(uint8_t* lButtonsHold, uint8_t* rButtonsHold, bool* lButtonsIsHold, bool* rButtonsIsHold)
+int U_I::print_buttons_hold(uint16_t* lButtonsHold, uint16_t* rButtonsHold, bool* lButtonsIsHold, bool* rButtonsIsHold)
 {
 	for (int i = 0; i < 5; i++) {
 		char strPrint[20];
@@ -105,12 +105,22 @@ int U_I::Print_res_stat(bool stat)
 int U_I::Print_tr_stat(bool stat)
 {
 	if (stat)
-		ST7789_WriteString(49, 192, "ok  ", Font_7x9, WHITE, BLACK);
-	else
 		ST7789_WriteString(49, 192, "lock", Font_7x9, WHITE, BLACK);
+	else
+		ST7789_WriteString(49, 192, "ok  ", Font_7x9, WHITE, BLACK);
 	return 0;
 }
 
+int U_I::Print_bat_volt(double volt)
+{
+	char strPrint[20];
+	sprintf(strPrint, "%d.%d\0", (int)volt, (int)((volt - (int)volt) * 100));
+	if (volt < 6.6)
+		ST7789_WriteString(56, 201, strPrint, Font_7x9, RED, BLACK);
+	else
+		ST7789_WriteString(56, 201, strPrint, Font_7x9, WHITE, BLACK);
+	return 0;
+}
 
 int U_I::print_pack_A(int nSatellite, double latitude, double longitude, double batteryVoltage)
 {
@@ -122,7 +132,10 @@ int U_I::print_pack_A(int nSatellite, double latitude, double longitude, double 
 	sprintf(strPrint, "%d.%d\0", (int)longitude, (int)((longitude - (int)longitude) * 100000));
 	ST7789_WriteString(35, 138, strPrint, Font_7x9, WHITE, BLACK);
 	sprintf(strPrint, "%d.%d\0", (int)batteryVoltage, (int)((batteryVoltage - (int)batteryVoltage) * 100));
-	ST7789_WriteString(56, 165, strPrint, Font_7x9, WHITE, BLACK);
+	if (batteryVoltage < 3.3)
+		ST7789_WriteString(56, 165, strPrint, Font_7x9, RED, BLACK);
+	else
+		ST7789_WriteString(56, 165, strPrint, Font_7x9, WHITE, BLACK);
 
 	return 0;
 }

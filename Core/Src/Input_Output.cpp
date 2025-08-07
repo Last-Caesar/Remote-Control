@@ -32,7 +32,7 @@ int ADC::Handler()
         {
             this->adcDataChannel[i] = adcData[i];
         }
-        batVolt = 1.2 / adcDataChannel[0] * adcDataChannel[3] * 10;
+        batVolt = 1.2 / adcDataChannel[0] * adcDataChannel[4] * 11.678;
         adcIsComplete = 0;
         this->isAdcComplete = 1;
     }

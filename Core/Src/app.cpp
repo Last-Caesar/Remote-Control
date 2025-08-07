@@ -22,6 +22,9 @@ int countTrInfoPackB = 0;
 bool lockEvent_Lock = 0;
 bool trIsLock = 1;
 
+int trimYaw = 0; //тримирование крена
+int trimPitch = 0; //тримирование тангажа
+
 int app()
 { 
 	ADC adc;
@@ -53,10 +56,27 @@ int app()
 		if (HAL_GetTick() - timerTransmitPackage >= 55 && reqPack_Lock == 0 && trIsLock == 0) {
 			timerTransmitPackage = HAL_GetTick();
 			counterReqPack++;
-			uint8_t channel1 = map(adc.adcDataChannel[6], 0, 4095, 0, 255); // газ 
-			uint8_t channel2 = map(adc.adcDataChannel[2], 0, 4095, 0, 255); // рыскание
-			uint8_t channel3 = map(adc.adcDataChannel[5], 0, 4095, 0, 255); // тангаж
-			uint8_t channel4 = map(adc.adcDataChannel[3], 0, 4095, 0, 255); // крен
+			uint8_t channel1 = map(adc.adcDataChannel[6], 0, 3740, 255, 0); // газ 
+			uint8_t channel2 = map(adc.adcDataChannel[2], 0, 4050, 0, 255); // рыскание
+
+			int channel3_int = map(adc.adcDataChannel[5], 1570, 2350, 255, 0) + trimPitch * 3; // тангаж
+			uint8_t channel3 = 0;
+			if (channel3_int > 255)
+				channel3 = 255;
+			else if (channel3_int < 0)
+				channel3 = 0;
+			else
+				channel3 = channel3_int;
+
+			int channel4_int = map(adc.adcDataChannel[3], 1570, 2350, 0, 255) + trimYaw * 3; // крен
+			uint8_t channel4 = 0;
+			if (channel4_int > 255)
+				channel4 = 255;
+			else if (channel4_int < 0)
+				channel4 = 0;
+			else
+				channel4 = channel4_int;
+
 			if (counterReqPack >= 20) {
 				counterReqPack = 0;
 				reqPack_Lock = 1;
@@ -109,8 +129,8 @@ int app()
 			//приняли пакет с данными
 			lora.packageIsAviable = 0;
 			reqPack_Lock = 0;
-			gui.Print_res_stat(1);
 			uint32_t timeReqPack = HAL_GetTick() - timerReqPack;
+			gui.Print_res_stat(1);
 			//здесь должен быть запрс rssi
 			if (lora.typeResPack == 1) {
 				gui.print_pack_A(lora.nSatellite, lora.latitude, lora.longitude, lora.batteryVoltage);
@@ -141,14 +161,17 @@ int app()
 
 		if (adc.isAdcComplete == 1) {
 			buttons.Handler(adc.adcDataChannel[7], adc.adcDataChannel[1]); //обработчик кнопок, обновляет поля класса
-			
+
+			trimPitch = buttons.rButtonsPress[0] - buttons.rButtonsPress[1];
+			trimYaw = buttons.rButtonsPress[2] - buttons.rButtonsPress[3];
+
 			gui.print_adc_Channel(adc.adcDataChannel);
 			if (buttons.eventButtons == 1) {
 				gui.print_buttons_press(buttons.lButtonsPress, buttons.rButtonsPress);
 				buttons.eventButtons = 0;
 			}
 			gui.print_buttons_hold(buttons.lButtonsHoldCounter, buttons.rButtonsHoldCounter, buttons.lButtonsIsHold, buttons.rButtonsIsHold);
-			//вывести напряжение акб
+			gui.Print_bat_volt(adc.batVolt); //вывести напряжение акб
 			if (buttons.lButtonsIsHold[3] == 1 && buttons.rButtonsIsHold[3] == 1 && lockEvent_Lock == 0) { //выполняется каждый раз когда зажаты обе кнопки
 				lockEvent_Lock = 1;
 				if (trIsLock) {

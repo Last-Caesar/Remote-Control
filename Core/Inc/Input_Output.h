@@ -21,10 +21,10 @@ class BUTTONS
 {
 public:
 	bool eventButtons = 0;
-	uint8_t lButtonsPress[5] = { 0 };
-	uint8_t rButtonsPress[5] = { 0 };
-	uint8_t lButtonsHoldCounter[5] = { 0 };
-	uint8_t rButtonsHoldCounter[5] = { 0 };
+	uint16_t lButtonsPress[5] = { 0 };
+	uint16_t rButtonsPress[5] = { 0 };
+	uint16_t lButtonsHoldCounter[5] = { 0 };
+	uint16_t rButtonsHoldCounter[5] = { 0 };
 	bool lButtonsIsHold[5] = { 0 };
 	bool rButtonsIsHold[5] = { 0 };
 	int Init();

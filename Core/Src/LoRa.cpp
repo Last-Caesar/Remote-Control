@@ -54,6 +54,7 @@ int LoRa::Handler()
 int LoRa::Transmit_Package(uint8_t packetType, uint8_t channel1, uint8_t channel2, uint8_t channel3, uint8_t channel4, uint16_t param)
 {
 	//char trStr[32] = "$ab,a\naaaaaaaaaaaaaaaaaaaaaaaaa";
+	while(HAL_GPIO_ReadPin(aux_pin_GPIO_Port, aux_pin_Pin) == 0) {}
 
 	if (packetType == 0) {
 		sprintf(trStr, "$,%x,%x,%x,%x,%x\n", channel1, channel2, channel3, channel4, param);

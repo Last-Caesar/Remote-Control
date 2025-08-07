@@ -12,10 +12,11 @@ public:
 	int print_pack_B(double altitude, double speed, char* timeStr);
 	int Print_res_stat(bool stat);
 	int Print_tr_stat(bool stat);
+	int Print_bat_volt(double volt);
 	int PrintScreen2();
 	int print_adc_Channel(uint16_t* adcDataChannel);
-	int print_buttons_press(uint8_t* lButtonsPress, uint8_t* rButtonsPress);
-	int print_buttons_hold(uint8_t* lButtonsHold, uint8_t* rButtonsHold, bool* lButtonsIsHold, bool* rButtonsIsHold);
+	int print_buttons_press(uint16_t* lButtonsPress, uint16_t* rButtonsPress);
+	int print_buttons_hold(uint16_t* lButtonsHold, uint16_t* rButtonsHold, bool* lButtonsIsHold, bool* rButtonsIsHold);
 	int currentScreen = 0;
 	int previousScreen = 0;
 private:
