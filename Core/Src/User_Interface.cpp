@@ -116,10 +116,12 @@ int U_I::Print_bat_volt(double volt)
 	char strPrint[20];
 	sprintf(strPrint, "%d.%d\0", (int)volt, (int)((volt - (int)volt) * 100));
 	ST7789_WriteString(56, 201, strPrint, Font_7x9, WHITE, BLACK);
-	if (volt < 6.6)
+	if (volt < 6.6) {
 		ST7789_WriteString(98, 201, "<--!", Font_7x9, WHITE, BLACK);
-	else
+	}
+	else {
 		ST7789_WriteString(98, 201, "    ", Font_7x9, WHITE, BLACK);
+	}
 	return 0;
 }
 

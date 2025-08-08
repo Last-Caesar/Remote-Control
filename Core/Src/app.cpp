@@ -25,6 +25,10 @@ bool trIsLock = 1;
 int trimYaw = 0; //тримирование крена
 int trimPitch = 0; //тримирование тангажа
 
+bool statAirBattAlarm = 0;
+bool statGrBattAlarm = 0;
+
+
 int app()
 { 
 	ADC adc;
@@ -134,7 +138,17 @@ int app()
 			//здесь должен быть запрс rssi
 			if (lora.typeResPack == 1) {
 				gui.print_pack_A(lora.nSatellite, lora.latitude, lora.longitude, lora.batteryVoltage);
-				
+
+				if (lora.batteryVoltage < 3.3) {
+					if (statGrBattAlarm == 0) {
+						statGrBattAlarm = 1;
+						buttons.enBattAirAlarm = 1;
+					}
+				}
+				else {
+					statGrBattAlarm = 0;
+				}
+
 				if (timeReqPack < 130) {
 					char strPrint[20];
 					sprintf(strPrint, "%3d \0", timeReqPack);
@@ -163,7 +177,7 @@ int app()
 			buttons.Handler(adc.adcDataChannel[7], adc.adcDataChannel[1]); //обработчик кнопок, обновляет поля класса
 
 			trimPitch = buttons.rButtonsPress[0] - buttons.rButtonsPress[1];
-			trimYaw = buttons.rButtonsPress[2] - buttons.rButtonsPress[3];
+			trimYaw =  buttons.rButtonsPress[3] - buttons.rButtonsPress[2];
 
 			gui.print_adc_Channel(adc.adcDataChannel);
 			if (buttons.eventButtons == 1) {
@@ -172,6 +186,17 @@ int app()
 			}
 			gui.print_buttons_hold(buttons.lButtonsHoldCounter, buttons.rButtonsHoldCounter, buttons.lButtonsIsHold, buttons.rButtonsIsHold);
 			gui.Print_bat_volt(adc.batVolt); //вывести напряжение акб
+
+			if (adc.batVolt < 6.6) {
+				if (statAirBattAlarm == 0) {
+					statAirBattAlarm = 1;
+					buttons.enBattAirAlarm = 1;
+				}
+			}
+			else {
+				statAirBattAlarm = 0;
+			}
+
 			if (buttons.lButtonsIsHold[3] == 1 && buttons.rButtonsIsHold[3] == 1 && lockEvent_Lock == 0) { //выполняется каждый раз когда зажаты обе кнопки
 				lockEvent_Lock = 1;
 				if (trIsLock) {

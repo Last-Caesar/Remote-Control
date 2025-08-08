@@ -58,7 +58,7 @@ int BUTTONS::Init()
     TIM2->CCR1 = 0; // включить светодиод на полную €ркость
     TIM3->CCR1 = 0; // выключить пищалку (подать ноль)
 
-    enBattAirAlarm = 1;
+    //enBattAirAlarm = 1;
     return 0;
 }
 
