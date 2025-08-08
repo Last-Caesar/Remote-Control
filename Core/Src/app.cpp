@@ -63,7 +63,7 @@ int app()
 			uint8_t channel1 = map(adc.adcDataChannel[6], 0, 3740, 255, 0); // газ 
 			uint8_t channel2 = map(adc.adcDataChannel[2], 0, 4050, 0, 255); // рыскание
 
-			int channel3_int = map(adc.adcDataChannel[5], 1570, 2350, 255, 0) + trimPitch * 3; // тангаж
+			int channel3_int = map(adc.adcDataChannel[5], 1570, 2350, 0, 255) + trimPitch * 3; // тангаж
 			uint8_t channel3 = 0;
 			if (channel3_int > 255)
 				channel3 = 255;
@@ -176,7 +176,7 @@ int app()
 		if (adc.isAdcComplete == 1) {
 			buttons.Handler(adc.adcDataChannel[7], adc.adcDataChannel[1]); //обработчик кнопок, обновляет поля класса
 
-			trimPitch = buttons.rButtonsPress[0] - buttons.rButtonsPress[1];
+			trimPitch = buttons.rButtonsPress[1] - buttons.rButtonsPress[0];
 			trimYaw =  buttons.rButtonsPress[3] - buttons.rButtonsPress[2];
 
 			gui.print_adc_Channel(adc.adcDataChannel);
