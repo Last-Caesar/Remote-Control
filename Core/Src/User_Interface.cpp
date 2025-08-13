@@ -115,12 +115,12 @@ int U_I::Print_bat_volt(double volt)
 {
 	char strPrint[20];
 	sprintf(strPrint, "%d.%d\0", (int)volt, (int)((volt - (int)volt) * 100));
-	ST7789_WriteString(56, 201, strPrint, Font_7x9, WHITE, BLACK);
+	ST7789_WriteString(56, 165, strPrint, Font_7x9, WHITE, BLACK);
 	if (volt < 6.6) {
-		ST7789_WriteString(98, 201, "<--!", Font_7x9, WHITE, BLACK);
+		ST7789_WriteString(98, 165, "<--!", Font_7x9, WHITE, BLACK);
 	}
 	else {
-		ST7789_WriteString(98, 201, "    ", Font_7x9, WHITE, BLACK);
+		ST7789_WriteString(98, 165, "    ", Font_7x9, WHITE, BLACK);
 	}
 	return 0;
 }
@@ -135,11 +135,11 @@ int U_I::print_pack_A(int nSatellite, double latitude, double longitude, double 
 	sprintf(strPrint, "%d.%d\0", (int)longitude, (int)((longitude - (int)longitude) * 100000));
 	ST7789_WriteString(35, 138, strPrint, Font_7x9, WHITE, BLACK);
 	sprintf(strPrint, "%d.%d\0", (int)batteryVoltage, (int)((batteryVoltage - (int)batteryVoltage) * 100));
-	ST7789_WriteString(56, 165, strPrint, Font_7x9, WHITE, BLACK);
+	ST7789_WriteString(56, 201, strPrint, Font_7x9, WHITE, BLACK);
 	if (batteryVoltage < 3.3)
-		ST7789_WriteString(98, 165, "<--!", Font_7x9, WHITE, BLACK);
+		ST7789_WriteString(98, 201, "<--!", Font_7x9, WHITE, BLACK);
 	else
-		ST7789_WriteString(98, 165, "    ", Font_7x9, WHITE, BLACK);
+		ST7789_WriteString(98, 201, "    ", Font_7x9, WHITE, BLACK);
 	return 0;
 }
 
