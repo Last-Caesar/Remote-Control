@@ -60,7 +60,7 @@ int app()
 		if (HAL_GetTick() - timerTransmitPackage >= 55 && reqPack_Lock == 0 && trIsLock == 0) {
 			timerTransmitPackage = HAL_GetTick();
 			counterReqPack++;
-			uint8_t channel1 = map(adc.adcDataChannel[6], 0, 3740, 255, 0); // газ 
+			uint8_t channel1 = map(adc.adcDataChannel[6], 0, 3870, 255, 0); // газ 
 			uint8_t channel2 = map(adc.adcDataChannel[2], 0, 4050, 0, 255); // рыскание
 
 			int channel3_int = map(adc.adcDataChannel[5], 1570, 2350, 0, 255) + trimPitch * 3; // тангаж
