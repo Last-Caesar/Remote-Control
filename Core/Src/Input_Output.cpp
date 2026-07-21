@@ -59,7 +59,8 @@ double ADC::GetMinVolteOfPeriod()
     double minVolt = 0;
     for (uint8_t i = 0; i < 3; i++)
         bankVoltAver[i] = bankVoltageSum[i] / countOfReads;
-    if (bankVoltAver[0] < bankVoltAver[1])
+
+    if (bankVoltAver[0] < bankVoltAver[1])      //3s
         if (bankVoltAver[0] < bankVoltAver[2])
             minVolt = bankVoltAver[0];
         else
@@ -69,6 +70,16 @@ double ADC::GetMinVolteOfPeriod()
             minVolt = bankVoltAver[1];
         else
             minVolt = bankVoltAver[2];
+
+    if (bankVoltAver[0] < 0.5)                   //2s
+        if (bankVoltAver[1] < bankVoltAver[2])
+            minVolt = bankVoltAver[1];
+        else
+            minVolt = bankVoltAver[2];
+
+    if (bankVoltAver[1] < 0.5)                   //1s
+        minVolt = bankVoltAver[2];
+
     for (uint8_t i = 0; i < 3; i++)
         bankVoltageSum[i] = 0;
     countOfReads = 0;
